@@ -27,14 +27,18 @@ type FlightWithLocationResponse struct {
 	DepartureLocation LocationSummaryResponse `json:"departureLocation"`
 	ArrivalLocation   LocationSummaryResponse `json:"arrivalLocation"`
 	EstimatedDuration time.Duration           `json:"estimatedDuration"`
+	Price             uint                    `json:"price" binding:"required,min=1"`
+	Airplane          string                  `json:"airplane" binding:"required,min=1,max=50"`
 	Status            flight.FlightStatus     `json:"status"`
 }
 
 type CreateFlightRequest struct {
-	DepartureTime     time.Time `json:"departureTime" binding:"required"`
-	ArrivalTime       time.Time `json:"arrivalTime" binding:"required"`
-	DepartureLocation string    `json:"departureLocation" binding:"required,min=3,max=100"`
-	ArrivalLocation   string    `json:"arrivalLocation" binding:"required,min=3,max=100"`
+	DepartureTime       time.Time `json:"departureTime" binding:"required"`
+	ArrivalTime         time.Time `json:"arrivalTime" binding:"required"`
+	DepartureLocationID string    `json:"departureLocationID" binding:"required"`
+	ArrivalLocationID   string    `json:"arrivalLocationID" binding:"required"`
+	Price               int       `json:"price" binding:"required,min=1"`
+	Airplane            string    `json:"airplane" binding:"required,min=1,max=50"`
 }
 
 type UpdateFlightRequest struct {

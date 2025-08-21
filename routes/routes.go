@@ -13,6 +13,14 @@ func SetUpRoutes(r *gin.Engine) {
 	api := r.Group("/api")
 
 	api.Use(cors.Default())
+	// api.Use(cors.New(cors.Config{
+	// 	AllowOrigins:     []string{"*"}, // or "*" for dev
+	// 	AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+	// 	AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+	// 	ExposeHeaders:    []string{"Content-Length"},
+	// 	AllowCredentials: true,
+	// 	MaxAge:           12 * time.Hour,
+	// }))
 	api.Use(middlewares.ErrorHandler)
 
 	api.GET("/health", healthCheck)

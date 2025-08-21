@@ -50,21 +50,13 @@ func (repo *FlightRepo) GetByID(id string) (*entities.FlightDetailed, error) {
 func (repo *FlightRepo) CreateFlight(data dtos.CreateFlightRequest) (*entities.Flight, error) {
 	db := repo.DB
 
-	var departureLocID string
-	db.Model(&entities.Location{}).
-		Where("locationName = ?", data.DepartureLocation).
-		Pluck("id", departureLocID)
-
-	var arrivalLocID string
-	db.Model(&entities.Location{}).
-		Where("locationName = ?", data.ArrivalLocation).
-		Pluck("id", arrivalLocID)
-
 	newFlight := entities.Flight{
 		DepartureTime:       data.DepartureTime,
 		ArrivalTime:         data.ArrivalTime,
-		DepartureLocationID: departureLocID,
-		ArrivalLocationID:   arrivalLocID,
+		DepartureLocationID: data.DepartureLocationID,
+		ArrivalLocationID:   data.ArrivalLocationID,
+		PlaneID:             data.Airplane,
+		Price:               data.Price,
 		Status:              entities.FlightScheduled,
 	}
 

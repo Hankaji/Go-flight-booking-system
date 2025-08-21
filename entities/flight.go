@@ -14,11 +14,13 @@ const (
 )
 
 type Flight struct {
-	ID                  string
+	ID                  int
 	DepartureTime       time.Time
 	ArrivalTime         time.Time
 	DepartureLocationID string
 	ArrivalLocationID   string
+	Price               int
+	PlaneID             string
 	Status              FlightStatus
 }
 
