@@ -22,7 +22,7 @@ type Flight struct {
 	Status              FlightStatus
 }
 
-type FlightWithLocation struct {
+type FlightDetailed struct {
 	ID                string
 	DepartureTime     time.Time
 	ArrivalTime       time.Time

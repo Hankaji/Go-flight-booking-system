@@ -19,6 +19,7 @@ func SetUpRoutes(r *gin.Engine) {
 
 	RegisterFlightRoutes(api)
 	RegisterLocationRoutes(api)
+	RegisterPlaneRoutes(api)
 }
 
 func healthCheck(ctx *gin.Context) {

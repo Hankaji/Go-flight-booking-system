@@ -11,7 +11,7 @@ import (
 
 type iFlightRepo interface {
 	IRepoRead[entities.Flight]
-	GetAllWithLocation() ([]entities.FlightWithLocation, error)
+	GetAllWithLocation() ([]entities.FlightDetailed, error)
 }
 
 type FlightRepo struct {
@@ -27,10 +27,10 @@ func (repo *FlightRepo) GetAll() ([]entities.Flight, error) {
 	return flights, nil
 }
 
-func (repo *FlightRepo) GetAllWithLocation() ([]entities.FlightWithLocation, error) {
+func (repo *FlightRepo) GetAllWithLocation() ([]entities.FlightDetailed, error) {
 	db := repo.DB
 
-	var flights []entities.FlightWithLocation
+	var flights []entities.FlightDetailed
 	db.Find(&flights)
 
 	fmt.Println("FlightRepo: ", flights)
@@ -38,7 +38,7 @@ func (repo *FlightRepo) GetAllWithLocation() ([]entities.FlightWithLocation, err
 	return flights, nil
 }
 
-func (repo *FlightRepo) GetByID(id string) (*entities.FlightWithLocation, error) {
+func (repo *FlightRepo) GetByID(id string) (*entities.FlightDetailed, error) {
 	db := repo.DB
 
 	var flight entities.Flight
