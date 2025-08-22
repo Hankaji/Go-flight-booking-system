@@ -3,7 +3,6 @@ package services
 
 import (
 	"flight-booking-server/dtos"
-	"flight-booking-server/entities"
 	"flight-booking-server/repositories"
 )
 
@@ -19,7 +18,7 @@ func (s *PlaneService) GetAllPlanes() ([]dtos.PlaneResponse, error) {
 
 	locationsRes := make([]dtos.PlaneResponse, 0, len(planes))
 	for _, plane := range planes {
-		locationsRes = append(locationsRes, *planeE2R(&plane))
+		locationsRes = append(locationsRes, *dtos.PlaneE2R(&plane))
 	}
 
 	return locationsRes, nil
@@ -31,17 +30,7 @@ func (s *PlaneService) GetPlanByID(id string) (*dtos.PlaneResponse, error) {
 		return nil, err
 	}
 
-	planeRes := planeE2R(plane)
+	planeRes := dtos.PlaneE2R(plane)
 
 	return planeRes, nil
-}
-
-func planeE2R(plane *entities.Plane) *dtos.PlaneResponse {
-	planeRes := dtos.PlaneResponse{
-		ID:         plane.ID,
-		Model:      plane.Model,
-		TotalSeats: plane.TotalSeats,
-	}
-
-	return &planeRes
 }

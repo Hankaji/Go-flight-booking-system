@@ -4,9 +4,9 @@ package repositories
 import (
 	"flight-booking-server/dtos"
 	"flight-booking-server/entities"
-	"fmt"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type iFlightRepo interface {
@@ -27,13 +27,11 @@ func (repo *FlightRepo) GetAll() ([]entities.Flight, error) {
 	return flights, nil
 }
 
-func (repo *FlightRepo) GetAllWithLocation() ([]entities.FlightDetailed, error) {
+func (repo *FlightRepo) GetAllWithLocation() ([]entities.Flight, error) {
 	db := repo.DB
 
-	var flights []entities.FlightDetailed
-	db.Find(&flights)
-
-	fmt.Println("FlightRepo: ", flights)
+	var flights []entities.Flight
+	db.Preload(clause.Associations).Find(&flights)
 
 	return flights, nil
 }

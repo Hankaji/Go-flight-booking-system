@@ -12,15 +12,15 @@ type FlightService struct {
 
 // var FlightNotFoundErr = errors.New("Couldnt find a flight")
 
-func (s FlightService) GetAllFlights() ([]dtos.FlightWithLocationResponse, error) {
+func (s FlightService) GetAllFlights() ([]dtos.FlightResponse, error) {
 	flights, err := s.Repo.GetAllWithLocation()
 	if err != nil {
 		return nil, err
 	}
 
-	flightRes := make([]dtos.FlightWithLocationResponse, 0, len(flights))
+	flightRes := make([]dtos.FlightResponse, 0, len(flights))
 	for _, flight := range flights {
-		flightRes = append(flightRes, dtos.FlightWithLocationResponse{
+		flightRes = append(flightRes, dtos.FlightResponse{
 			ID:            flight.ID,
 			DepartureTime: flight.DepartureTime,
 			ArrivalTime:   flight.ArrivalTime,
@@ -33,6 +33,8 @@ func (s FlightService) GetAllFlights() ([]dtos.FlightWithLocationResponse, error
 				Name: flight.ArrivalLocation.LocationName,
 			},
 			EstimatedDuration: flight.ArrivalTime.Sub(flight.DepartureTime),
+			Airplane:          *dtos.PlaneE2R(&flight.Plane),
+			Price:             flight.Price,
 			Status:            flight.Status,
 		})
 	}
@@ -40,13 +42,13 @@ func (s FlightService) GetAllFlights() ([]dtos.FlightWithLocationResponse, error
 	return flightRes, nil
 }
 
-func (s FlightService) GetFlightByID(id string) (*dtos.FlightWithLocationResponse, error) {
+func (s FlightService) GetFlightByID(id string) (*dtos.FlightResponse, error) {
 	flight, err := s.Repo.GetByID(id)
 	if err != nil {
 		return nil, err
 	}
 
-	flightRes := dtos.FlightWithLocationResponse{
+	flightRes := dtos.FlightResponse{
 		ID:            flight.ID,
 		DepartureTime: flight.DepartureTime,
 		ArrivalTime:   flight.ArrivalTime,
@@ -58,6 +60,8 @@ func (s FlightService) GetFlightByID(id string) (*dtos.FlightWithLocationRespons
 			ID:   flight.ArrivalLocation.ID,
 			Name: flight.ArrivalLocation.LocationName,
 		},
+		Airplane: *dtos.PlaneE2R(&flight.Plane),
+
 		Status: flight.Status,
 	}
 

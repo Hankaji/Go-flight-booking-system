@@ -18,19 +18,29 @@ type Flight struct {
 	DepartureTime       time.Time
 	ArrivalTime         time.Time
 	DepartureLocationID string
-	ArrivalLocationID   string
-	Price               int
-	PlaneID             string
-	Status              FlightStatus
+	DepartureLocation   Location `gorm:"foreignKey:DepartureLocationID;references:ID"`
+
+	ArrivalLocationID string
+	ArrivalLocation   Location `gorm:"foreignKey:ArrivalLocationID;references:ID"`
+
+	Price   float32
+	PlaneID string
+	Plane   Plane `gorm:"foreignKey:PlaneID;references:ID"`
+
+	Status FlightStatus
 }
 
 type FlightDetailed struct {
-	ID                string
+	ID                int
 	DepartureTime     time.Time
 	ArrivalTime       time.Time
 	DepartureLocation Location `gorm:"embedded"`
 	ArrivalLocation   Location `gorm:"embedded"`
 	Price             uint
-	Airplane          string
+	Plane             Plane `gorm:"embedded"`
 	Status            FlightStatus
+}
+
+func (FlightDetailed) TableName() string {
+	return "flights"
 }
