@@ -78,6 +78,7 @@ func (repo *TicketRepo) Create(data dtos.CreateTicketRequest) (*entities.Ticket,
 	}
 
 	newTicket := entities.Ticket{
+		FlightID: data.FlightID,
 		SeatID:   data.SeatID,
 		Username: data.Username,
 		Status:   entities.TicketApproved,
