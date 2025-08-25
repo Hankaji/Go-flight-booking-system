@@ -51,7 +51,7 @@ func (repo *TicketRepo) Create(data dtos.CreateTicketRequest) (*entities.Ticket,
 	db := repo.DB
 
 	// Check if flight exists
-	var flight entities.Seat
+	var flight entities.Flight
 	if err := db.First(&flight, data.FlightID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, httperrors.NewHTTPErr(http.StatusNotFound, fmt.Errorf("flight with ID %d does not exist", data.SeatID), err)
