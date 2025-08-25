@@ -50,11 +50,20 @@ func (repo *TicketRepo) GetByID(id string) (*entities.Ticket, error) {
 func (repo *TicketRepo) Create(data dtos.CreateTicketRequest) (*entities.Ticket, error) {
 	db := repo.DB
 
+	// Check if flight exists
+	var flight entities.Seat
+	if err := db.First(&flight, data.FlightID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, httperrors.NewHTTPErr(http.StatusNotFound, fmt.Errorf("flight with ID %d does not exist", data.SeatID), err)
+		}
+		return nil, err
+	}
+
 	// Check if seat exists
 	var seat entities.Seat
 	if err := db.First(&seat, data.SeatID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, httperrors.NewHTTPErr(http.StatusBadRequest, fmt.Errorf("seat with ID %d does not exist", data.SeatID), err)
+			return nil, httperrors.NewHTTPErr(http.StatusNotFound, fmt.Errorf("seat with ID %d does not exist", data.SeatID), err)
 		}
 		return nil, err
 	}
@@ -63,7 +72,7 @@ func (repo *TicketRepo) Create(data dtos.CreateTicketRequest) (*entities.Ticket,
 	var existingTicket entities.Ticket
 	if err := db.Where("seat_id = ? AND status != ?", data.SeatID, entities.TicketCancelled).
 		First(&existingTicket).Error; err == nil {
-		return nil, httperrors.NewHTTPErr(http.StatusBadRequest, fmt.Errorf("seat %d is already booked", data.SeatID), err)
+		return nil, httperrors.NewHTTPErr(http.StatusConflict, fmt.Errorf("seat %d is already booked", data.SeatID), err)
 	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}

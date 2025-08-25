@@ -13,6 +13,7 @@ type TicketResponse struct {
 }
 
 type CreateTicketRequest struct {
+	FlightID uint   `json:"flightId"`
 	SeatID   uint   `json:"seatId"`
 	Username string `json:"username"`
 }

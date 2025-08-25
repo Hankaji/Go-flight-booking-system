@@ -3,6 +3,7 @@ package controllers
 
 import (
 	"flight-booking-server/dtos"
+	httperrors "flight-booking-server/http-errors"
 	"flight-booking-server/services"
 	"net/http"
 
@@ -47,7 +48,7 @@ func (con TicketController) GetTicketByID(ctx *gin.Context) {
 func (con TicketController) CreateTicket(ctx *gin.Context) {
 	var createTicketReq dtos.CreateTicketRequest
 	if err := ctx.BindJSON(&createTicketReq); err != nil {
-		ctx.Error(err)
+		ctx.Error(httperrors.NewHTTPErr(http.StatusBadRequest, nil, err))
 		return
 	}
 
