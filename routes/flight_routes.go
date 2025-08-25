@@ -10,7 +10,7 @@ import (
 )
 
 func RegisterFlightRoutes(r *gin.RouterGroup) {
-	flightCotroller := controllers.FlightController{
+	controller := controllers.FlightController{
 		Service: services.FlightService{
 			Repo: repositories.FlightRepo{
 				DB: db.GetDBInstance(),
@@ -18,7 +18,9 @@ func RegisterFlightRoutes(r *gin.RouterGroup) {
 		},
 	}
 
-	r.GET("flights", flightCotroller.GetFlights)
-	r.GET("flights/:flightID", flightCotroller.GetFlightsByID)
-	r.POST("flights", flightCotroller.CreateFlight)
+	r.GET("flights", controller.GetFlights)
+	r.GET("flights/:flightID", controller.GetFlightsByID)
+	r.GET("flights/:flightID/seats", controller.GetSeatAvailability)
+
+	r.POST("flights", controller.CreateFlight)
 }

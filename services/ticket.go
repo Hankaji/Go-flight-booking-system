@@ -36,7 +36,7 @@ func (s *TicketService) GetTicketByID(id string) (*dtos.TicketResponse, error) {
 }
 
 func (s *TicketService) CreateTicket(req dtos.CreateTicketRequest) error {
-	_, err := s.Repo.CreateTicket(req)
+	_, err := s.Repo.Create(req)
 	if err != nil {
 		return err
 	}

@@ -14,6 +14,7 @@ import (
 
 type ITicketRepo interface {
 	IRepoRead[entities.Ticket]
+	IRepoCreate[entities.Ticket]
 }
 
 type TicketRepo struct {
@@ -46,7 +47,7 @@ func (repo *TicketRepo) GetByID(id string) (*entities.Ticket, error) {
 	return &ticket, nil
 }
 
-func (repo *TicketRepo) CreateTicket(data dtos.CreateTicketRequest) (*entities.Ticket, error) {
+func (repo *TicketRepo) Create(data dtos.CreateTicketRequest) (*entities.Ticket, error) {
 	db := repo.DB
 
 	// Check if seat exists
@@ -63,7 +64,7 @@ func (repo *TicketRepo) CreateTicket(data dtos.CreateTicketRequest) (*entities.T
 	if err := db.Where("seat_id = ? AND status != ?", data.SeatID, entities.TicketCancelled).
 		First(&existingTicket).Error; err == nil {
 		return nil, httperrors.NewHTTPErr(http.StatusBadRequest, fmt.Errorf("seat %d is already booked", data.SeatID), err)
-	} else if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 
@@ -74,7 +75,7 @@ func (repo *TicketRepo) CreateTicket(data dtos.CreateTicketRequest) (*entities.T
 	}
 
 	if err := db.Create(&newTicket).Error; err != nil {
-		return nil, httperrors.NewHTTPErr(http.StatusInternalServerError, fmt.Errorf("Could not create ticket for corresponding seat %d", data.SeatID), err)
+		return nil, httperrors.NewHTTPErr(http.StatusInternalServerError, fmt.Errorf("could not create ticket for corresponding seat %d", data.SeatID), err)
 	}
 
 	return nil, nil

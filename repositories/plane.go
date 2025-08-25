@@ -2,7 +2,11 @@
 package repositories
 
 import (
+	"errors"
 	"flight-booking-server/entities"
+	httperrors "flight-booking-server/http-errors"
+	"fmt"
+	"net/http"
 
 	"gorm.io/gorm"
 )
@@ -28,7 +32,12 @@ func (repo *PlaneRepo) GetByID(id string) (*entities.Plane, error) {
 	db := repo.DB
 
 	var plane entities.Plane
-	db.First(&plane, id)
+	if err := db.First(&plane, id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, httperrors.NewHTTPErr(http.StatusNotFound, fmt.Errorf("plane with ID %s does not exist", id), err)
+	} else if err != nil {
+		fmt.Println("Other error:", err)
+		return nil, err
+	}
 
 	return &plane, nil
 }

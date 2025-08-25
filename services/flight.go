@@ -4,6 +4,7 @@ package services
 import (
 	"flight-booking-server/dtos"
 	"flight-booking-server/repositories"
+	"sort"
 )
 
 type FlightService struct {
@@ -66,6 +67,25 @@ func (s FlightService) GetFlightByID(id string) (*dtos.FlightResponse, error) {
 	}
 
 	return &flightRes, nil
+}
+
+func (s FlightService) GetAllSeatsAvailability(flightID string) ([]dtos.SeatAvailabilityResponse, error) {
+	seats, err := s.Repo.GetSeatAvailability(flightID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Ascending
+	sort.Slice(seats, func(i, j int) bool {
+		return seats[i].ID < seats[j].ID
+	})
+
+	SeatRes := make([]dtos.SeatAvailabilityResponse, 0, len(seats))
+	for _, seat := range seats {
+		SeatRes = append(SeatRes, *dtos.SeatAvailabilityE2R(&seat))
+	}
+
+	return SeatRes, nil
 }
 
 func (s FlightService) CreateFlight(req dtos.CreateFlightRequest) error {

@@ -40,21 +40,39 @@ func (repo *FlightRepo) GetAllWithLocation() ([]entities.Flight, error) {
 	return flights, nil
 }
 
-func (repo *FlightRepo) GetByID(id string) (*entities.FlightDetailed, error) {
+func (repo *FlightRepo) GetByID(id string) (*entities.Flight, error) {
 	db := repo.DB
 
 	var flight entities.Flight
-	err := db.First(&flight, id).Error
-
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		fmt.Println("No flight found with that ID")
+	if err := db.Preload(clause.Associations).First(&flight, id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, httperrors.NewHTTPErr(http.StatusNotFound, fmt.Errorf("flight with ID %s does not exist", id), err)
 	} else if err != nil {
 		fmt.Println("Other error:", err)
 		return nil, err
 	}
 
-	return nil, nil
+	return &flight, nil
+}
+
+func (repo *FlightRepo) GetSeatAvailability(flightID string) ([]entities.SeatWithStatus, error) {
+	db := repo.DB
+
+	var seats []entities.SeatWithStatus
+	if err := db.Raw(`
+		SELECT s.*, 
+			CASE WHEN t.id IS NULL THEN 'available' ELSE 'taken' END AS status
+		FROM seats s
+		JOIN flights f
+			ON f.plane_id = s.plane_id
+		LEFT JOIN tickets t 
+			ON s.id = t.seat_id
+			AND t.flight_id = ?
+		WHERE f.id = ?
+		`, flightID, flightID).Scan(&seats).Error; err != nil {
+		return nil, err
+	}
+
+	return seats, nil
 }
 
 func (repo *FlightRepo) CreateFlight(data dtos.CreateFlightRequest) (*entities.Flight, error) {

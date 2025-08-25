@@ -58,3 +58,20 @@ func (con FlightController) CreateFlight(ctx *gin.Context) {
 		"message": "Flight created succesfully",
 	})
 }
+
+func (con FlightController) GetSeatAvailability(ctx *gin.Context) {
+	service := con.Service
+
+	id := ctx.Param("flightID")
+
+	seat, err := service.GetAllSeatsAvailability(id)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "Data fetched successfully",
+		"data":    seat,
+	})
+}
