@@ -16,8 +16,8 @@ func main() {
 	}
 
 	// Init DB
-	db.GetDBInstance()
-	// defer pgDB.
+	dbConn := db.GetDBInstance()
+	db.AutoMigrate(dbConn)
 
 	router := gin.Default()
 

@@ -2,7 +2,7 @@
 package entities
 
 type Location struct {
-	ID           string `gorm:"primaryKey"`
+	ID           uint `gorm:"primaryKey;autoIncrement"`
 	LocationName string
 	Latitude     float32
 	Longitude    float32

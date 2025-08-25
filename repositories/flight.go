@@ -2,8 +2,12 @@
 package repositories
 
 import (
+	"errors"
 	"flight-booking-server/dtos"
 	"flight-booking-server/entities"
+	httperrors "flight-booking-server/http-errors"
+	"fmt"
+	"net/http"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -40,7 +44,15 @@ func (repo *FlightRepo) GetByID(id string) (*entities.FlightDetailed, error) {
 	db := repo.DB
 
 	var flight entities.Flight
-	db.First(&flight, id)
+	err := db.First(&flight, id).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		fmt.Println("No flight found with that ID")
+		return nil, httperrors.NewHTTPErr(http.StatusNotFound, fmt.Errorf("flight with ID %s does not exist", id), err)
+	} else if err != nil {
+		fmt.Println("Other error:", err)
+		return nil, err
+	}
 
 	return nil, nil
 }

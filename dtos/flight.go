@@ -7,12 +7,12 @@ import (
 )
 
 type LocationSummaryResponse struct {
-	ID   string `json:"id"`
+	ID   uint   `json:"id"`
 	Name string `json:"name"`
 }
 
 type FlightResponse struct {
-	ID                int                     `json:"id"`
+	ID                uint                    `json:"id"`
 	DepartureTime     time.Time               `json:"departureTime"`
 	ArrivalTime       time.Time               `json:"arrivalTime"`
 	DepartureLocation LocationSummaryResponse `json:"departureLocation"`

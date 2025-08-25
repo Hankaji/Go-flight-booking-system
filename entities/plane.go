@@ -2,7 +2,9 @@
 package entities
 
 type Plane struct {
-	ID         string
+	ID         uint `gorm:"primaryKey;autoIncrement"`
 	Model      string
 	TotalSeats uint
+
+	Seats []Seat `gorm:"foreignKey:PlaneID"`
 }

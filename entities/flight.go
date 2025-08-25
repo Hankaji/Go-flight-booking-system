@@ -1,7 +1,9 @@
 // Package entities represent all the entities in the application
 package entities
 
-import "time"
+import (
+	"time"
+)
 
 type FlightStatus string
 
@@ -14,24 +16,24 @@ const (
 )
 
 type Flight struct {
-	ID                  int
-	DepartureTime       time.Time
-	ArrivalTime         time.Time
-	DepartureLocationID string
-	DepartureLocation   Location `gorm:"foreignKey:DepartureLocationID;references:ID"`
+	ID            uint `gorm:"primaryKey;autoIncrement"`
+	DepartureTime time.Time
+	ArrivalTime   time.Time
 
-	ArrivalLocationID string
-	ArrivalLocation   Location `gorm:"foreignKey:ArrivalLocationID;references:ID"`
+	DepartureLocationID string
+	ArrivalLocationID   string
 
 	Price   float32
 	PlaneID string
-	Plane   Plane `gorm:"foreignKey:PlaneID;references:ID"`
+	Status  FlightStatus
 
-	Status FlightStatus
+	DepartureLocation Location `gorm:"foreignKey:DepartureLocationID;references:ID"`
+	ArrivalLocation   Location `gorm:"foreignKey:ArrivalLocationID;references:ID"`
+	Plane             Plane    `gorm:"foreignKey:PlaneID;references:ID"`
 }
 
 type FlightDetailed struct {
-	ID                int
+	ID                uint
 	DepartureTime     time.Time
 	ArrivalTime       time.Time
 	DepartureLocation Location `gorm:"embedded"`

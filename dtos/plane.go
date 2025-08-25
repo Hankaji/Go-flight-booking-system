@@ -4,7 +4,7 @@ package dtos
 import "flight-booking-server/entities"
 
 type PlaneResponse struct {
-	ID         string `json:"id"`
+	ID         uint   `json:"id"`
 	Model      string `json:"model"`
 	TotalSeats uint   `json:"totalSeats"`
 }
