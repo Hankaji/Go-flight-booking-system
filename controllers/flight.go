@@ -8,6 +8,7 @@ import (
 	httperrors "flight-booking-server/http-errors"
 	"flight-booking-server/repositories"
 	"flight-booking-server/services"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,10 @@ import (
 
 type FlightController struct {
 	Service services.FlightService
+}
+
+type FlightFilterQuery struct {
+	PlaneID *string `form:"plane_id"`
 }
 
 func (con FlightController) GetFlights(ctx *gin.Context) {
@@ -27,9 +32,27 @@ func (con FlightController) GetFlights(ctx *gin.Context) {
 		return
 	}
 
+	if err := ValidatePagination(q); err != nil {
+		ctx.Error(*err)
+		return
+	}
+
+	var f FlightFilterQuery
+	if err := ctx.ShouldBindQuery(&f); err != nil {
+		ctx.Error(httperrors.NewHTTPErr(
+			http.StatusBadRequest,
+			errors.New("failed binding query"),
+			err))
+		return
+	}
+
+	fmt.Println("Filter: ", f)
+
 	flights, err := con.Service.GetAllFlights(
 		repositories.PaginationFromQuery(q),
-		nil)
+		&repositories.FlightFilter{
+			PlaneID: f.PlaneID,
+		})
 	if err != nil {
 		ctx.Error(err)
 		return

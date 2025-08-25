@@ -29,7 +29,11 @@ func (e HTTPError) StatusCode() int {
 }
 
 func (e HTTPError) Err() string {
-	return e.err.Error()
+	if e.err != nil {
+		return e.err.Error()
+	}
+
+	return ""
 }
 
 func FromErr(e error) (*HTTPError, bool) {
