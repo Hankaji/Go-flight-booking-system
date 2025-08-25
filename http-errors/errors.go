@@ -13,7 +13,7 @@ type HTTPError struct {
 }
 
 func (e HTTPError) Error() string {
-	return fmt.Sprintf("<%d> %v", e.statusCode, errors.Join(e.appErr, e.err).Error())
+	return fmt.Sprintf("<%d> %v - %v", e.statusCode, e.appErr, e.err)
 }
 
 func NewHTTPErr(statusCode int, appErr error, err error) *HTTPError {
@@ -26,6 +26,10 @@ func NewHTTPErr(statusCode int, appErr error, err error) *HTTPError {
 
 func (e HTTPError) StatusCode() int {
 	return e.statusCode
+}
+
+func (e HTTPError) Err() string {
+	return e.err.Error()
 }
 
 func FromErr(e error) (*HTTPError, bool) {

@@ -13,31 +13,65 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type iFlightRepo interface {
-	IRepoRead[entities.Flight]
-	GetAllWithLocation() ([]entities.FlightDetailed, error)
-}
-
 type FlightRepo struct {
 	DB *gorm.DB
 }
 
-func (repo *FlightRepo) GetAll() ([]entities.Flight, error) {
-	db := repo.DB
+type FlightFilter struct {
+	PlaneID *string
+}
+
+func (repo *FlightRepo) GetAllWithParams(pagination *Pagination, filter *FlightFilter) ([]entities.Flight, error) {
+	db := repo.DB.Model(&entities.Flight{})
 
 	var flights []entities.Flight
+
+	if pagination == nil {
+		pagination = DefaultPagination()
+	}
+	db.Limit(int(pagination.limit))
+	db.Offset(int(pagination.index))
+
+	if filter != nil {
+		if filter.PlaneID != nil {
+			db.Where("plane_id = ?", *filter.PlaneID)
+		}
+	}
+
 	db.Find(&flights)
 
 	return flights, nil
 }
 
-func (repo *FlightRepo) GetAllWithLocation() ([]entities.Flight, error) {
-	db := repo.DB
+func (repo *FlightRepo) GetAll() ([]entities.Flight, error) {
+	return repo.GetAllWithParams(nil, nil)
+}
+
+func (repo *FlightRepo) GetAllWithLocationWithParams(pagination *Pagination, filter *FlightFilter) ([]entities.Flight, error) {
+	db := repo.DB.Model(&entities.Flight{})
 
 	var flights []entities.Flight
+
+	if pagination == nil {
+		pagination = DefaultPagination()
+	}
+
+	db.Offset(int((pagination.index - 1) * pagination.limit))
+	db.Limit(int(pagination.limit))
+
+	if filter != nil {
+		if filter.PlaneID != nil {
+			db.Where("plane_id = ?", *filter.PlaneID)
+		}
+	}
+
 	db.Preload(clause.Associations).Find(&flights)
 
 	return flights, nil
+}
+
+func (repo *FlightRepo) GetAllWithLocation() ([]entities.Flight, error) {
+	return repo.GetAllWithLocationWithParams(nil, nil)
 }
 
 func (repo *FlightRepo) GetByID(id string) (*entities.Flight, error) {

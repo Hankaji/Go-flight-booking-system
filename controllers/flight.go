@@ -2,7 +2,11 @@
 package controllers
 
 import (
+	"errors"
+	"flight-booking-server/controllers/queries"
 	"flight-booking-server/dtos"
+	httperrors "flight-booking-server/http-errors"
+	"flight-booking-server/repositories"
 	"flight-booking-server/services"
 	"net/http"
 
@@ -14,7 +18,18 @@ type FlightController struct {
 }
 
 func (con FlightController) GetFlights(ctx *gin.Context) {
-	flights, err := con.Service.GetAllFlights()
+	var q queries.PaginationQuery
+	if err := ctx.ShouldBindQuery(&q); err != nil {
+		ctx.Error(httperrors.NewHTTPErr(
+			http.StatusBadRequest,
+			errors.New("failed binding query"),
+			err))
+		return
+	}
+
+	flights, err := con.Service.GetAllFlights(
+		repositories.PaginationFromQuery(q),
+		nil)
 	if err != nil {
 		ctx.Error(err)
 		return

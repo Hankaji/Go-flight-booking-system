@@ -3,6 +3,7 @@ package services
 
 import (
 	"flight-booking-server/dtos"
+	"flight-booking-server/entities"
 	"flight-booking-server/repositories"
 	"sort"
 )
@@ -13,8 +14,8 @@ type FlightService struct {
 
 // var FlightNotFoundErr = errors.New("Couldnt find a flight")
 
-func (s FlightService) GetAllFlights() ([]dtos.FlightResponse, error) {
-	flights, err := s.Repo.GetAllWithLocation()
+func (s FlightService) GetAllFlights(pagination *repositories.Pagination, filter *repositories.FlightFilter) ([]dtos.FlightResponse, error) {
+	flights, err := s.Repo.GetAllWithLocationWithParams(pagination, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -90,6 +91,19 @@ func (s FlightService) GetAllSeatsAvailability(flightID string) ([]dtos.SeatAvai
 
 func (s FlightService) CreateFlight(req dtos.CreateFlightRequest) error {
 	// Validate time
+	var flights []entities.Flight
+	{
+		_flights, err := s.Repo.GetAllWithParams(nil, &repositories.FlightFilter{
+			PlaneID: &req.Airplane,
+		})
+		if err != nil {
+			return err
+		}
+		flights = _flights
+	}
+
+	println("Filtered flights: ", flights)
+
 	// Validate location
 
 	_, err := s.Repo.CreateFlight(req)

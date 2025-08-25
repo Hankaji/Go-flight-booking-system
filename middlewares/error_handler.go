@@ -17,10 +17,14 @@ func ErrorHandler(ctx *gin.Context) {
 		if httpErr, ok := httperrors.FromErr(err); ok {
 			ctx.JSON(httpErr.StatusCode(), gin.H{
 				"success": false,
+				"code":    httpErr.StatusCode(),
 				"message": httpErr.Error(),
+				"error":   httpErr.Err(),
 			})
 			return
 		}
+		t1, t2 := httperrors.FromErr(err)
+		println("DEBUGGING: ", t1, t2)
 
 		// Default generic status
 		ctx.JSON(http.StatusInternalServerError, gin.H{
