@@ -10,6 +10,7 @@ import (
 
 func AutoMigrate(db *gorm.DB) {
 	// db.Exec("CREATE TYPE ticket_status AS ENUM ('approved', 'cancelled')")
+	// db.Migrator().DropTable(&entities.Ticket{})
 	err := db.AutoMigrate(
 		&entities.Ticket{},
 		&entities.Seat{},
