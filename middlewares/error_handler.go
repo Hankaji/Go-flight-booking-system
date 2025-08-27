@@ -18,7 +18,7 @@ func ErrorHandler(ctx *gin.Context) {
 			ctx.JSON(httpErr.StatusCode(), gin.H{
 				"success": false,
 				"code":    httpErr.StatusCode(),
-				"message": httpErr.Error(),
+				"message": httpErr.AppErr(),
 				"error":   httpErr.Err(),
 			})
 			return

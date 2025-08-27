@@ -28,6 +28,14 @@ func (e HTTPError) StatusCode() int {
 	return e.statusCode
 }
 
+func (e HTTPError) AppErr() string {
+	if e.appErr != nil {
+		return e.appErr.Error()
+	}
+
+	return ""
+}
+
 func (e HTTPError) Err() string {
 	if e.err != nil {
 		return e.err.Error()
