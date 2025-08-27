@@ -21,5 +21,4 @@ func RegisterTicketRoutes(r *gin.RouterGroup) {
 
 	r.GET("tickets", ticketController.GetTickets)
 	r.GET("tickets/:ticketID", ticketController.GetTicketByID)
-	r.POST("tickets", ticketController.CreateTicket)
 }

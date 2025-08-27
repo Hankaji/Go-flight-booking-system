@@ -34,12 +34,3 @@ func (s *TicketService) GetTicketByID(id string) (*dtos.TicketResponse, error) {
 
 	return locationRes, nil
 }
-
-func (s *TicketService) CreateTicket(req dtos.CreateTicketRequest) error {
-	_, err := s.Repo.Create(req)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}

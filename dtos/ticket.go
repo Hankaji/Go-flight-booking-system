@@ -12,12 +12,6 @@ type TicketResponse struct {
 	Seat *SeatResponse `json:"seat,omitempty"`
 }
 
-type CreateTicketRequest struct {
-	FlightID uint   `json:"flightId"`
-	SeatID   uint   `json:"seatId"`
-	Username string `json:"username"`
-}
-
 func TicketE2R(ticket *entities.Ticket) *TicketResponse {
 	if ticket == nil {
 		return nil

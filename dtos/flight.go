@@ -32,6 +32,11 @@ type CreateFlightRequest struct {
 	Airplane            string    `json:"airplane" binding:"required,min=1,max=50"`
 }
 
+type CreateTicketRequest struct {
+	SeatID   uint   `json:"seatId" binding:"required"`
+	Username string `json:"username" binding:"required"`
+}
+
 type UpdateFlightRequest struct {
 	DepartureTime     *time.Time           `json:"departureTime,omitempty"`
 	ArrivalTime       *time.Time           `json:"arrivalTime,omitempty"`

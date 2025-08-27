@@ -2,8 +2,6 @@
 package controllers
 
 import (
-	"flight-booking-server/dtos"
-	httperrors "flight-booking-server/http-errors"
 	"flight-booking-server/services"
 	"net/http"
 
@@ -42,25 +40,5 @@ func (con TicketController) GetTicketByID(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "Data fetched successfully",
 		"data":    ticket,
-	})
-}
-
-func (con TicketController) CreateTicket(ctx *gin.Context) {
-	var createTicketReq dtos.CreateTicketRequest
-	if err := ctx.BindJSON(&createTicketReq); err != nil {
-		ctx.Error(httperrors.NewHTTPErr(http.StatusBadRequest, nil, err))
-		return
-	}
-
-	service := con.Service
-
-	err := service.CreateTicket(createTicketReq)
-	if err != nil {
-		ctx.Error(err)
-		return
-	}
-
-	ctx.JSON(http.StatusCreated, gin.H{
-		"message": "Ticket created succesfully",
 	})
 }

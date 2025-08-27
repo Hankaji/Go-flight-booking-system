@@ -10,6 +10,7 @@ import (
 	"flight-booking-server/services"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -94,6 +95,35 @@ func (con FlightController) CreateFlight(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, gin.H{
 		"message": "Flight created succesfully",
+	})
+}
+
+func (con FlightController) CreateTicket(ctx *gin.Context) {
+	var createTicketReq dtos.CreateTicketRequest
+	if err := ctx.BindJSON(&createTicketReq); err != nil {
+		ctx.Error(httperrors.NewHTTPErr(http.StatusBadRequest,
+			nil,
+			err))
+		return
+	}
+
+	idParam := ctx.Param("flightID")
+	id, parseErr := strconv.ParseUint(idParam, 10, 32)
+	if parseErr != nil {
+		ctx.Error(httperrors.NewHTTPErr(http.StatusBadRequest, errors.New("invalid flightID"), parseErr))
+		return
+	}
+
+	service := con.Service
+
+	err := service.CreateTicket(uint(id), createTicketReq)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{
+		"message": "Flight ticket created succesfully",
 	})
 }
 

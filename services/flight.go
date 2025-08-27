@@ -129,6 +129,15 @@ func (s FlightService) CreateFlight(req dtos.CreateFlightRequest) error {
 	return nil
 }
 
+func (s FlightService) CreateTicket(flightID uint, req dtos.CreateTicketRequest) error {
+	_, err := s.Repo.CreateTicket(flightID, req)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s FlightService) DeleteFlight(flightID string) error {
 	// Validate if flight can be deleted
 	approvedTicketStatus := entities.TicketApproved
