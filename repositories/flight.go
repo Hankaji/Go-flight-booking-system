@@ -109,6 +109,17 @@ func (repo *FlightRepo) GetSeatAvailability(flightID string) ([]entities.SeatWit
 	return seats, nil
 }
 
+func (repo *FlightRepo) GetTickets(flightID string, filter *TicketFilter) ([]entities.Ticket, error) {
+	db := repo.DB
+
+	var tickets []entities.Ticket
+	if err := db.Where("flight_id = ?", flightID).Find(&tickets).Error; err != nil {
+		return nil, err
+	}
+
+	return tickets, nil
+}
+
 func (repo *FlightRepo) CreateFlight(data dtos.CreateFlightRequest) (*entities.Flight, error) {
 	db := repo.DB
 
@@ -125,4 +136,14 @@ func (repo *FlightRepo) CreateFlight(data dtos.CreateFlightRequest) (*entities.F
 	db.Create(&newFlight)
 
 	return nil, nil
+}
+
+func (repo *FlightRepo) DeleteFlight(flightID string) error {
+	db := repo.DB
+
+	if err := db.Delete(&entities.Flight{}, flightID).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -97,6 +97,22 @@ func (con FlightController) CreateFlight(ctx *gin.Context) {
 	})
 }
 
+func (con FlightController) DeleteFlight(ctx *gin.Context) {
+	service := con.Service
+
+	id := ctx.Param("flightID")
+
+	err := service.DeleteFlight(id)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{
+		"message": "Flight deleted succesfully",
+	})
+}
+
 func (con FlightController) GetSeatAvailability(ctx *gin.Context) {
 	service := con.Service
 
@@ -111,5 +127,22 @@ func (con FlightController) GetSeatAvailability(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "Data fetched successfully",
 		"data":    seat,
+	})
+}
+
+func (con FlightController) GetTickets(ctx *gin.Context) {
+	service := con.Service
+
+	id := ctx.Param("flightID")
+
+	tickets, err := service.GetAllTickets(id)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "Tickets fetched successfully",
+		"data":    tickets,
 	})
 }

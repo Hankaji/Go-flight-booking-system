@@ -15,6 +15,6 @@ type Ticket struct {
 	Username string       `gorm:"type:varchar(100);not null"`
 	Status   TicketStatus `gorm:"type:ticket_status;not null"`
 
-	Seat   Seat   `gorm:"foreignKey:SeatID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Flight Flight `gorm:"foreignKey:FlightID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Seat   *Seat   `gorm:"foreignKey:SeatID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Flight *Flight `gorm:"foreignKey:FlightID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }

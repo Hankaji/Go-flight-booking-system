@@ -2,17 +2,18 @@
 package services
 
 import (
+	"errors"
 	"flight-booking-server/dtos"
 	"flight-booking-server/entities"
+	httperrors "flight-booking-server/http-errors"
 	"flight-booking-server/repositories"
+	"net/http"
 	"sort"
 )
 
 type FlightService struct {
 	Repo repositories.FlightRepo
 }
-
-// var FlightNotFoundErr = errors.New("Couldnt find a flight")
 
 func (s FlightService) GetAllFlights(pagination *repositories.Pagination, filter *repositories.FlightFilter) ([]dtos.FlightResponse, error) {
 	flights, err := s.Repo.GetAllWithLocationWithParams(pagination, filter)
@@ -89,6 +90,20 @@ func (s FlightService) GetAllSeatsAvailability(flightID string) ([]dtos.SeatAvai
 	return SeatRes, nil
 }
 
+func (s FlightService) GetAllTickets(flightID string) ([]dtos.TicketResponse, error) {
+	tickets, err := s.Repo.GetTickets(flightID, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	ticketRes := make([]dtos.TicketResponse, 0, len(tickets))
+	for _, ticket := range tickets {
+		ticketRes = append(ticketRes, *dtos.TicketE2R(&ticket))
+	}
+
+	return ticketRes, nil
+}
+
 func (s FlightService) CreateFlight(req dtos.CreateFlightRequest) error {
 	// Validate time
 	var flights []entities.Flight
@@ -107,6 +122,29 @@ func (s FlightService) CreateFlight(req dtos.CreateFlightRequest) error {
 	// Validate location
 
 	_, err := s.Repo.CreateFlight(req)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s FlightService) DeleteFlight(flightID string) error {
+	// Validate if flight can be deleted
+	approvedTicketStatus := entities.TicketApproved
+	if flightTickets, err := s.Repo.GetTickets(flightID, &repositories.TicketFilter{
+		Status: &approvedTicketStatus,
+	}); err != nil {
+		return err
+	} else {
+		if len(flightTickets) != 0 {
+			return httperrors.NewHTTPErr(http.StatusConflict,
+				errors.New("flight couldn't be deleted as there are still tickets booked on this"),
+				nil)
+		}
+	}
+
+	err := s.Repo.DeleteFlight(flightID)
 	if err != nil {
 		return err
 	}

@@ -16,8 +16,8 @@ func (e HTTPError) Error() string {
 	return fmt.Sprintf("<%d> %v - %v", e.statusCode, e.appErr, e.err)
 }
 
-func NewHTTPErr(statusCode int, appErr error, err error) *HTTPError {
-	return &HTTPError{
+func NewHTTPErr(statusCode int, appErr error, err error) HTTPError {
+	return HTTPError{
 		statusCode,
 		appErr,
 		err,

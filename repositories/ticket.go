@@ -21,6 +21,10 @@ type TicketRepo struct {
 	DB *gorm.DB
 }
 
+type TicketFilter struct {
+	Status *entities.TicketStatus
+}
+
 func (repo *TicketRepo) GetAll() ([]entities.Ticket, error) {
 	db := repo.DB
 

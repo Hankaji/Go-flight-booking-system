@@ -17,6 +17,10 @@ type SeatAvailabilityResponse struct {
 }
 
 func SeatE2R(seat *entities.Seat) *SeatResponse {
+	if seat == nil {
+		return nil
+	}
+
 	seatRes := SeatResponse{
 		ID:         seat.ID,
 		PlaneID:    seat.PlaneID,

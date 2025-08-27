@@ -19,13 +19,17 @@ type CreateTicketRequest struct {
 }
 
 func TicketE2R(ticket *entities.Ticket) *TicketResponse {
+	if ticket == nil {
+		return nil
+	}
+
 	ticketRes := TicketResponse{
 		ID:       ticket.ID,
 		SeatID:   ticket.SeatID,
 		Username: ticket.Username,
 		Status:   ticket.Status,
 
-		Seat: SeatE2R(&ticket.Seat),
+		Seat: SeatE2R(ticket.Seat),
 	}
 
 	return &ticketRes
