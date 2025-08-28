@@ -144,16 +144,18 @@ func (s FlightService) UpdateTicket(flightID, ticketID uint, req dtos.UpdateTick
 		return err
 	}
 
-	// Validate ticket in flight
-	if _, err := s.Repo.GetTicketByID(flightID, ticketID); err != nil {
+	// Validate existingTicket in flight
+	var existingTicket entities.Ticket
+	if _existingTicket, err := s.Repo.GetTicketByID(flightID, ticketID); err != nil {
 		return err
+	} else {
+		existingTicket = *_existingTicket
 	}
 
-	updatedTicket := entities.Ticket{
-		SeatID:   req.SeatID,
-		Username: req.Username,
-		Status:   req.Status,
-	}
+	updatedTicket := existingTicket
+	updatedTicket.SeatID = req.SeatID
+	updatedTicket.Username = req.Username
+	updatedTicket.Status = req.Status
 
 	err := s.Repo.UpdateTicket(flightID, ticketID, updatedTicket)
 	if err != nil {
