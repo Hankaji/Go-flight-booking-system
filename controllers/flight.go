@@ -174,7 +174,41 @@ func (con FlightController) UpdateTicket(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
-		"message": "Flight ticket created succesfully",
+		"message": "Flight ticket updated succesfully",
+	})
+}
+
+func (con FlightController) UpdateFlight(ctx *gin.Context) {
+	var updateTicketReq dtos.UpdateFlightRequest
+	if err := ctx.BindJSON(&updateTicketReq); err != nil {
+		ctx.Error(httperrors.NewHTTPErr(http.StatusBadRequest,
+			nil,
+			err))
+		return
+	}
+
+	var flightID uint
+	{
+		idParam := ctx.Param("flightID")
+		id, parseErr := strconv.ParseUint(idParam, 10, 32)
+		if parseErr != nil {
+			ctx.Error(httperrors.NewHTTPErr(http.StatusBadRequest, errors.New("invalid flightID"), parseErr))
+			return
+		}
+
+		flightID = uint(id)
+	}
+
+	service := con.Service
+
+	err := service.UpdateFlight(flightID, updateTicketReq)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{
+		"message": "Flight updated succesfully",
 	})
 }
 

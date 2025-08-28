@@ -38,15 +38,16 @@ type CreateTicketRequest struct {
 }
 
 type UpdateTicketRequest struct {
-	SeatID   uint                  `json:"seatId,omitempty"`
-	Username string                `json:"username,omitempty"`
-	Status   entities.TicketStatus `json:"status,omitempty" binding:"oneof=approved cancelled"`
+	SeatID   *uint                  `json:"seatId,omitempty"`
+	Username *string                `json:"username,omitempty"`
+	Status   *entities.TicketStatus `json:"status,omitempty" binding:"omitempty,oneof=approved cancelled"`
 }
 
 type UpdateFlightRequest struct {
-	DepartureTime     *time.Time             `json:"departureTime,omitempty"`
-	ArrivalTime       *time.Time             `json:"arrivalTime,omitempty"`
-	DepartureLocation *string                `json:"departureLocation,omitempty" binding:"omitempty,min=3,max=100"`
-	ArrivalLocation   *string                `json:"arrivalLocation,omitempty" binding:"omitempty,min=3,max=100"`
-	Status            *entities.FlightStatus `json:"status" binding:"required,oneof=scheduled delayed departed arrived cancelled"`
+	DepartureTime       *time.Time             `json:"departureTime,omitempty"`
+	ArrivalTime         *time.Time             `json:"arrivalTime,omitempty"`
+	DepartureLocationID *uint                  `json:"departureLocationId,omitempty"`
+	ArrivalLocationID   *uint                  `json:"arrivalLocationId,omitempty"`
+	PlaneID             *uint                  `json:"planeId,omitempty"`
+	Status              *entities.FlightStatus `json:"status" binding:"omitempty,oneof=scheduled delayed departed arrived cancelled"`
 }

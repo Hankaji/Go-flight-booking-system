@@ -127,7 +127,7 @@ func (repo *FlightRepo) GetTicketByID(flightID, ticketID uint) (*entities.Ticket
 	if err := db.Where("flight_id = ?", flightID).First(&ticket, ticketID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, httperrors.NewHTTPErr(http.StatusNotFound,
-				errors.New("no ticket with ID %s could be found"),
+				fmt.Errorf("no ticket with ID %d could be found for flight ID %d", ticketID, flightID),
 				err)
 		} else {
 			return nil, err
@@ -209,10 +209,20 @@ func (repo *FlightRepo) DeleteFlight(flightID string) error {
 	return nil
 }
 
-func (repo *FlightRepo) UpdateTicket(flightID, ticketID uint, updatedTicket entities.Ticket) error {
+func (repo *FlightRepo) UpdateTicket(flightID, ticketID uint, updatedTicket map[string]any) error {
 	db := repo.DB
 
 	if err := db.Model(&entities.Ticket{ID: ticketID}).Omit("id").Updates(updatedTicket).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repo *FlightRepo) UpdateFlight(flightID uint, updatedFlight map[string]any) error {
+	db := repo.DB
+
+	if err := db.Model(&entities.Flight{ID: flightID}).Omit("id").Updates(updatedFlight).Error; err != nil {
 		return err
 	}
 

@@ -7,8 +7,10 @@ import (
 	"flight-booking-server/entities"
 	httperrors "flight-booking-server/http-errors"
 	"flight-booking-server/repositories"
+	"fmt"
 	"net/http"
 	"sort"
+	"strconv"
 )
 
 type FlightService struct {
@@ -145,19 +147,73 @@ func (s FlightService) UpdateTicket(flightID, ticketID uint, req dtos.UpdateTick
 	}
 
 	// Validate existingTicket in flight
-	var existingTicket entities.Ticket
-	if _existingTicket, err := s.Repo.GetTicketByID(flightID, ticketID); err != nil {
+	if _, err := s.Repo.GetTicketByID(flightID, ticketID); err != nil {
 		return err
-	} else {
-		existingTicket = *_existingTicket
 	}
 
-	updatedTicket := existingTicket
-	updatedTicket.SeatID = req.SeatID
-	updatedTicket.Username = req.Username
-	updatedTicket.Status = req.Status
+	updates := map[string]any{}
+	if req.SeatID != nil {
+		updates["seat_id"] = *req.SeatID
+	}
+	if req.Username != nil {
+		updates["username"] = *req.Username
+	}
+	if req.Status != nil {
+		updates["status"] = *req.Status
+	}
 
-	err := s.Repo.UpdateTicket(flightID, ticketID, updatedTicket)
+	if len(updates) > 0 {
+		err := s.Repo.UpdateTicket(flightID, ticketID, updates)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s FlightService) UpdateFlight(flightID uint, req dtos.UpdateFlightRequest) error {
+	// Validate flight exists
+	if _, err := s.Repo.GetByID(flightID); err != nil {
+		return err
+	}
+
+	// check if there is any tickets booked on this
+	approvedTicketStatus := entities.TicketApproved
+	if flightTickets, err := s.Repo.GetTickets(strconv.FormatUint(uint64(flightID), 10), &repositories.TicketFilter{
+		Status: &approvedTicketStatus,
+	}); err != nil {
+		return err
+	} else {
+		if len(flightTickets) != 0 && req.PlaneID != nil {
+			return httperrors.NewHTTPErr(http.StatusConflict,
+				fmt.Errorf("couldn't update plane on flight ID %d as there are still tickets booked on this", flightID),
+				nil,
+			)
+		}
+	}
+
+	updates := map[string]any{}
+	if req.DepartureTime != nil {
+		updates["departure_time"] = *req.DepartureTime
+	}
+	if req.ArrivalTime != nil {
+		updates["arrival_time"] = *req.ArrivalTime
+	}
+	if req.DepartureLocationID != nil {
+		updates["departure_location_id"] = *req.DepartureLocationID
+	}
+	if req.ArrivalLocationID != nil {
+		updates["arrival_location_id"] = *req.ArrivalLocationID
+	}
+	if req.PlaneID != nil {
+		updates["plane_id"] = *req.PlaneID
+	}
+	if req.Status != nil {
+		updates["status"] = *req.Status
+	}
+
+	err := s.Repo.UpdateFlight(flightID, updates)
 	if err != nil {
 		return err
 	}

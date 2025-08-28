@@ -22,6 +22,7 @@ func RegisterFlightRoutes(r *gin.RouterGroup) {
 	r.GET("flights", controller.GetFlights)
 	r.GET("flights/:flightID", controller.GetFlightsByID)
 	r.POST("flights", controller.CreateFlight)
+	r.PATCH("flights/:flightID", controller.UpdateFlight)
 	r.DELETE("flights/:flightID", controller.DeleteFlight)
 
 	// Seats
