@@ -2,7 +2,7 @@
 package dtos
 
 import (
-	flight "flight-booking-server/entities"
+	"flight-booking-server/entities"
 	"time"
 )
 
@@ -20,7 +20,7 @@ type FlightResponse struct {
 	EstimatedDuration time.Duration           `json:"estimatedDuration"`
 	Price             float32                 `json:"price" binding:"required,min=1"`
 	Airplane          PlaneResponse           `json:"airplane" binding:"required,min=1,max=50"`
-	Status            flight.FlightStatus     `json:"status"`
+	Status            entities.FlightStatus   `json:"status"`
 }
 
 type CreateFlightRequest struct {
@@ -37,10 +37,16 @@ type CreateTicketRequest struct {
 	Username string `json:"username" binding:"required"`
 }
 
+type UpdateTicketRequest struct {
+	SeatID   uint                  `json:"seatId,omitempty"`
+	Username string                `json:"username,omitempty"`
+	Status   entities.TicketStatus `json:"status,omitempty" binding:"oneof=approved cancelled"`
+}
+
 type UpdateFlightRequest struct {
-	DepartureTime     *time.Time           `json:"departureTime,omitempty"`
-	ArrivalTime       *time.Time           `json:"arrivalTime,omitempty"`
-	DepartureLocation *string              `json:"departureLocation,omitempty" binding:"omitempty,min=3,max=100"`
-	ArrivalLocation   *string              `json:"arrivalLocation,omitempty" binding:"omitempty,min=3,max=100"`
-	Status            *flight.FlightStatus `json:"status" binding:"required,oneof=scheduled delayed departed arrived cancelled"`
+	DepartureTime     *time.Time             `json:"departureTime,omitempty"`
+	ArrivalTime       *time.Time             `json:"arrivalTime,omitempty"`
+	DepartureLocation *string                `json:"departureLocation,omitempty" binding:"omitempty,min=3,max=100"`
+	ArrivalLocation   *string                `json:"arrivalLocation,omitempty" binding:"omitempty,min=3,max=100"`
+	Status            *entities.FlightStatus `json:"status" binding:"required,oneof=scheduled delayed departed arrived cancelled"`
 }

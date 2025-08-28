@@ -45,7 +45,7 @@ func (s FlightService) GetAllFlights(pagination *repositories.Pagination, filter
 	return flightRes, nil
 }
 
-func (s FlightService) GetFlightByID(id string) (*dtos.FlightResponse, error) {
+func (s FlightService) GetFlightByID(id uint) (*dtos.FlightResponse, error) {
 	flight, err := s.Repo.GetByID(id)
 	if err != nil {
 		return nil, err
@@ -131,6 +131,31 @@ func (s FlightService) CreateFlight(req dtos.CreateFlightRequest) error {
 
 func (s FlightService) CreateTicket(flightID uint, req dtos.CreateTicketRequest) error {
 	_, err := s.Repo.CreateTicket(flightID, req)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s FlightService) UpdateTicket(flightID, ticketID uint, req dtos.UpdateTicketRequest) error {
+	// Validate flight exists
+	if _, err := s.Repo.GetByID(flightID); err != nil {
+		return err
+	}
+
+	// Validate ticket in flight
+	if _, err := s.Repo.GetTicketByID(flightID, ticketID); err != nil {
+		return err
+	}
+
+	updatedTicket := entities.Ticket{
+		SeatID:   req.SeatID,
+		Username: req.Username,
+		Status:   req.Status,
+	}
+
+	err := s.Repo.UpdateTicket(flightID, ticketID, updatedTicket)
 	if err != nil {
 		return err
 	}

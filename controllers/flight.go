@@ -66,9 +66,14 @@ func (con FlightController) GetFlights(ctx *gin.Context) {
 }
 
 func (con FlightController) GetFlightsByID(ctx *gin.Context) {
-	id := ctx.Param("flightID")
+	idParam := ctx.Param("flightID")
+	id, parseErr := strconv.ParseUint(idParam, 10, 32)
+	if parseErr != nil {
+		ctx.Error(httperrors.NewHTTPErr(http.StatusBadRequest, errors.New("invalid flightID"), parseErr))
+		return
+	}
 
-	flight, err := con.Service.GetFlightByID(id)
+	flight, err := con.Service.GetFlightByID(uint(id))
 	if err != nil {
 		ctx.Error(err)
 		return
@@ -117,6 +122,52 @@ func (con FlightController) CreateTicket(ctx *gin.Context) {
 	service := con.Service
 
 	err := service.CreateTicket(uint(id), createTicketReq)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{
+		"message": "Flight ticket created succesfully",
+	})
+}
+
+func (con FlightController) UpdateTicket(ctx *gin.Context) {
+	var updateTicketReq dtos.UpdateTicketRequest
+	if err := ctx.BindJSON(&updateTicketReq); err != nil {
+		ctx.Error(httperrors.NewHTTPErr(http.StatusBadRequest,
+			nil,
+			err))
+		return
+	}
+
+	var flightID uint
+	{
+		idParam := ctx.Param("flightID")
+		id, parseErr := strconv.ParseUint(idParam, 10, 32)
+		if parseErr != nil {
+			ctx.Error(httperrors.NewHTTPErr(http.StatusBadRequest, errors.New("invalid flightID"), parseErr))
+			return
+		}
+
+		flightID = uint(id)
+	}
+
+	var ticketID uint
+	{
+		idParam := ctx.Param("ticketID")
+		id, parseErr := strconv.ParseUint(idParam, 10, 32)
+		if parseErr != nil {
+			ctx.Error(httperrors.NewHTTPErr(http.StatusBadRequest, errors.New("invalid ticketID"), parseErr))
+			return
+		}
+
+		ticketID = uint(id)
+	}
+
+	service := con.Service
+
+	err := service.UpdateTicket(flightID, ticketID, updateTicketReq)
 	if err != nil {
 		ctx.Error(err)
 		return

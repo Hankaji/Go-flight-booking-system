@@ -74,12 +74,12 @@ func (repo *FlightRepo) GetAllWithLocation() ([]entities.Flight, error) {
 	return repo.GetAllWithLocationWithParams(nil, nil)
 }
 
-func (repo *FlightRepo) GetByID(id string) (*entities.Flight, error) {
+func (repo *FlightRepo) GetByID(id uint) (*entities.Flight, error) {
 	db := repo.DB
 
 	var flight entities.Flight
 	if err := db.Preload(clause.Associations).First(&flight, id).Error; errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, httperrors.NewHTTPErr(http.StatusNotFound, fmt.Errorf("flight with ID %s does not exist", id), err)
+		return nil, httperrors.NewHTTPErr(http.StatusNotFound, fmt.Errorf("flight with ID %d does not exist", id), err)
 	} else if err != nil {
 		fmt.Println("Other error:", err)
 		return nil, err
@@ -118,6 +118,23 @@ func (repo *FlightRepo) GetTickets(flightID string, filter *TicketFilter) ([]ent
 	}
 
 	return tickets, nil
+}
+
+func (repo *FlightRepo) GetTicketByID(flightID, ticketID uint) (*entities.Ticket, error) {
+	db := repo.DB
+
+	var ticket entities.Ticket
+	if err := db.Where("flight_id = ?", flightID).First(&ticket, ticketID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, httperrors.NewHTTPErr(http.StatusNotFound,
+				errors.New("no ticket with ID %s could be found"),
+				err)
+		} else {
+			return nil, err
+		}
+	}
+
+	return &ticket, nil
 }
 
 func (repo *FlightRepo) CreateFlight(data dtos.CreateFlightRequest) (*entities.Flight, error) {
@@ -192,10 +209,10 @@ func (repo *FlightRepo) DeleteFlight(flightID string) error {
 	return nil
 }
 
-func (repo *FlightRepo) UpdateTicket(flightID, ticketID string) error {
+func (repo *FlightRepo) UpdateTicket(flightID, ticketID uint, updatedTicket entities.Ticket) error {
 	db := repo.DB
 
-	if err := db.Delete(&entities.Flight{}, flightID).Error; err != nil {
+	if err := db.Model(&entities.Ticket{ID: ticketID}).Omit("id").Updates(updatedTicket).Error; err != nil {
 		return err
 	}
 
