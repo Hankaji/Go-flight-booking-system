@@ -145,7 +145,7 @@ func (repo *FlightRepo) CreateFlight(data dtos.CreateFlightRequest) (*entities.F
 		ArrivalTime:         data.ArrivalTime,
 		DepartureLocationID: data.DepartureLocationID,
 		ArrivalLocationID:   data.ArrivalLocationID,
-		PlaneID:             data.Airplane,
+		PlaneID:             data.AirplaneID,
 		Price:               data.Price,
 		Status:              entities.FlightScheduled,
 	}

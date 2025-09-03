@@ -29,7 +29,7 @@ type CreateFlightRequest struct {
 	DepartureLocationID string    `json:"departureLocationID" binding:"required"`
 	ArrivalLocationID   string    `json:"arrivalLocationID" binding:"required"`
 	Price               float32   `json:"price" binding:"required,min=1"`
-	Airplane            string    `json:"airplane" binding:"required,min=1,max=50"`
+	AirplaneID          string    `json:"planeId" binding:"required,min=1,max=50"`
 }
 
 type CreateTicketRequest struct {

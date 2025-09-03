@@ -111,7 +111,7 @@ func (s FlightService) CreateFlight(req dtos.CreateFlightRequest) error {
 	var flights []entities.Flight
 	{
 		_flights, err := s.Repo.GetAllWithParams(nil, &repositories.FlightFilter{
-			PlaneID: &req.Airplane,
+			PlaneID: &req.AirplaneID,
 		})
 		if err != nil {
 			return err
