@@ -8,6 +8,7 @@ import (
 	httperrors "flight-booking-server/http-errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -18,7 +19,62 @@ type FlightRepo struct {
 }
 
 type FlightFilter struct {
-	PlaneID *string
+	PlaneID             *string
+	Status              *entities.FlightStatus
+	TimeFrom            *time.Time
+	TimeTo              *time.Time
+	DepartureLocationID *string
+	ArrivalLocationID   *string
+	Duration            *string
+	MinPrice            *string
+	MaxPrice            *string
+}
+
+func (filter *FlightFilter) apply(db *gorm.DB) *gorm.DB {
+	if filter == nil {
+		return db
+	}
+
+	if filter.PlaneID != nil {
+		db = db.Where("plane_id = ?", *filter.PlaneID)
+	}
+
+	if filter.Status != nil {
+		db = db.Where("status = ?", *filter.Status)
+	}
+
+	if filter.TimeFrom != nil && filter.TimeTo != nil {
+		db = db.Where("departure_time BETWEEN ? AND ?", *filter.TimeFrom, *filter.TimeTo)
+	} else if filter.TimeFrom != nil {
+		db = db.Where("departure_time >= ?", *filter.TimeFrom)
+	} else if filter.TimeTo != nil {
+		db = db.Where("departure_time <= ?", *filter.TimeTo)
+	}
+
+	if filter.DepartureLocationID != nil {
+		db = db.Where("departure_location_id = ?", *filter.DepartureLocationID)
+	}
+
+	if filter.ArrivalLocationID != nil {
+		db = db.Where("arrival_location_id = ?", *filter.ArrivalLocationID)
+	}
+
+	if filter.Duration != nil {
+		if duration, err := time.ParseDuration(*filter.Duration); err == nil {
+			durationSeconds := int(duration.Seconds())
+			db = db.Where("arrival_time - departure_time <= INTERVAL ? SECOND", durationSeconds)
+		}
+	}
+
+	if filter.MinPrice != nil {
+		db = db.Where("price >= ?", *filter.MinPrice)
+	}
+
+	if filter.MaxPrice != nil {
+		db = db.Where("price <= ?", *filter.MaxPrice)
+	}
+
+	return db
 }
 
 func (repo *FlightRepo) GetAllWithParams(pagination *Pagination, filter *FlightFilter) ([]entities.Flight, error) {
@@ -26,11 +82,7 @@ func (repo *FlightRepo) GetAllWithParams(pagination *Pagination, filter *FlightF
 
 	var flights []entities.Flight
 
-	if pagination == nil {
-		pagination = DefaultPagination()
-	}
-	db.Limit(int(pagination.limit))
-	db.Offset(int(pagination.index))
+	db.Scopes(pagination.Apply, filter.apply)
 
 	if filter != nil {
 		if filter.PlaneID != nil {
@@ -52,12 +104,7 @@ func (repo *FlightRepo) GetAllWithLocationWithParams(pagination *Pagination, fil
 
 	var flights []entities.Flight
 
-	if pagination == nil {
-		pagination = DefaultPagination()
-	}
-
-	db.Offset(int((pagination.index - 1) * pagination.limit))
-	db.Limit(int(pagination.limit))
+	db.Scopes(pagination.Apply, filter.apply)
 
 	if filter != nil {
 		if filter.PlaneID != nil {

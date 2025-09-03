@@ -5,12 +5,14 @@ import (
 	"errors"
 	"flight-booking-server/controllers/queries"
 	"flight-booking-server/dtos"
+	"flight-booking-server/entities"
 	httperrors "flight-booking-server/http-errors"
 	"flight-booking-server/repositories"
 	"flight-booking-server/services"
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,7 +22,29 @@ type FlightController struct {
 }
 
 type FlightFilterQuery struct {
-	PlaneID *string `form:"plane_id"`
+	PlaneID             *string                `form:"planeId"`
+	Status              *entities.FlightStatus `form:"status"`
+	TimeFrom            *time.Time             `form:"timeFrom"`
+	TimeTo              *time.Time             `form:"timeTo"`
+	DepartureLocationID *string                `form:"departureLocationId"`
+	ArrivalLocationID   *string                `form:"arrivalLocationId"`
+	Duration            *string                `form:"duration"`
+	MinPrice            *string                `form:"minPrice"`
+	MaxPrice            *string                `form:"maxPrice"`
+}
+
+func (q *FlightFilterQuery) toFilter() *repositories.FlightFilter {
+	return &repositories.FlightFilter{
+		PlaneID:             q.PlaneID,
+		Status:              q.Status,
+		TimeFrom:            q.TimeFrom,
+		TimeTo:              q.TimeTo,
+		DepartureLocationID: q.DepartureLocationID,
+		ArrivalLocationID:   q.ArrivalLocationID,
+		Duration:            q.Duration,
+		MinPrice:            q.MinPrice,
+		MaxPrice:            q.MaxPrice,
+	}
 }
 
 func (con FlightController) GetFlights(ctx *gin.Context) {
@@ -51,9 +75,8 @@ func (con FlightController) GetFlights(ctx *gin.Context) {
 
 	flights, err := con.Service.GetAllFlights(
 		repositories.PaginationFromQuery(q),
-		&repositories.FlightFilter{
-			PlaneID: f.PlaneID,
-		})
+		f.toFilter(),
+	)
 	if err != nil {
 		ctx.Error(err)
 		return

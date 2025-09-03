@@ -1,7 +1,11 @@
 // Package repositories
 package repositories
 
-import "flight-booking-server/controllers/queries"
+import (
+	"flight-booking-server/controllers/queries"
+
+	"gorm.io/gorm"
+)
 
 type IRepoRead[T any] interface {
 	GetAll() ([]T, error)
@@ -22,6 +26,17 @@ func NewPagination(index, limit uint) *Pagination {
 		index,
 		limit,
 	}
+}
+
+func (p *Pagination) Apply(db *gorm.DB) *gorm.DB {
+	if p == nil {
+		p = DefaultPagination()
+	}
+
+	db.Offset(int((p.index - 1) * p.limit))
+	db.Limit(int(p.limit))
+
+	return db
 }
 
 func PaginationFromQuery(query queries.PaginationQuery) *Pagination {
