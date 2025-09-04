@@ -21,7 +21,10 @@ type TicketRepo struct {
 }
 
 type TicketFilter struct {
-	Status *entities.TicketStatus
+	SeatID   *uint
+	FlightID *uint
+	Username *string
+	Status   *entities.TicketStatus
 }
 
 func (repo *TicketRepo) GetAll() ([]entities.Ticket, error) {

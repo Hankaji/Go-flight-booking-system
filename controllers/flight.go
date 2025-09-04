@@ -268,12 +268,48 @@ func (con FlightController) GetSeatAvailability(ctx *gin.Context) {
 	})
 }
 
+type FlightTicketFilterQuery struct {
+	SeatID   *uint                  `form:"seatId"`
+	Username *string                `form:"username"`
+	Status   *entities.TicketStatus `form:"status"`
+}
+
+func (q *FlightTicketFilterQuery) toFilter() *repositories.FlightTicketFilter {
+	return &repositories.FlightTicketFilter{
+		SeatID:   q.SeatID,
+		Username: q.Username,
+		Status:   q.Status,
+	}
+}
+
 func (con FlightController) GetTickets(ctx *gin.Context) {
 	service := con.Service
 
+	var q queries.PaginationQuery
+	if err := ctx.ShouldBindQuery(&q); err != nil {
+		ctx.Error(httperrors.NewHTTPErr(
+			http.StatusBadRequest,
+			errors.New("failed binding query"),
+			err))
+		return
+	}
+
+	var f FlightTicketFilterQuery
+	if err := ctx.ShouldBindQuery(&f); err != nil {
+		ctx.Error(httperrors.NewHTTPErr(
+			http.StatusBadRequest,
+			errors.New("failed binding query"),
+			err))
+		return
+	}
+
+	fmt.Println(f.toFilter())
+
 	id := ctx.Param("flightID")
 
-	tickets, err := service.GetAllTickets(id)
+	tickets, err := service.GetAllTickets(id,
+		repositories.PaginationFromQuery(q),
+		f.toFilter())
 	if err != nil {
 		ctx.Error(err)
 		return

@@ -92,8 +92,8 @@ func (s FlightService) GetAllSeatsAvailability(flightID string) ([]dtos.SeatAvai
 	return SeatRes, nil
 }
 
-func (s FlightService) GetAllTickets(flightID string) ([]dtos.TicketResponse, error) {
-	tickets, err := s.Repo.GetTickets(flightID, nil)
+func (s FlightService) GetAllTickets(flightID string, pagination *repositories.Pagination, filter *repositories.FlightTicketFilter) ([]dtos.TicketResponse, error) {
+	tickets, err := s.Repo.GetTickets(flightID, pagination, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -180,9 +180,11 @@ func (s FlightService) UpdateFlight(flightID uint, req dtos.UpdateFlightRequest)
 
 	// check if there is any tickets booked on this
 	approvedTicketStatus := entities.TicketApproved
-	if flightTickets, err := s.Repo.GetTickets(strconv.FormatUint(uint64(flightID), 10), &repositories.TicketFilter{
-		Status: &approvedTicketStatus,
-	}); err != nil {
+	if flightTickets, err := s.Repo.GetTickets(strconv.FormatUint(uint64(flightID), 10),
+		nil,
+		&repositories.FlightTicketFilter{
+			Status: &approvedTicketStatus,
+		}); err != nil {
 		return err
 	} else {
 		if len(flightTickets) != 0 && req.PlaneID != nil {
@@ -224,9 +226,11 @@ func (s FlightService) UpdateFlight(flightID uint, req dtos.UpdateFlightRequest)
 func (s FlightService) DeleteFlight(flightID string) error {
 	// Validate if flight can be deleted
 	approvedTicketStatus := entities.TicketApproved
-	if flightTickets, err := s.Repo.GetTickets(flightID, &repositories.TicketFilter{
-		Status: &approvedTicketStatus,
-	}); err != nil {
+	if flightTickets, err := s.Repo.GetTickets(flightID,
+		nil,
+		&repositories.FlightTicketFilter{
+			Status: &approvedTicketStatus,
+		}); err != nil {
 		return err
 	} else {
 		if len(flightTickets) != 0 {

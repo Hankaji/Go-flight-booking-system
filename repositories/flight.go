@@ -156,8 +156,38 @@ func (repo *FlightRepo) GetSeatAvailability(flightID string) ([]entities.SeatWit
 	return seats, nil
 }
 
-func (repo *FlightRepo) GetTickets(flightID string, filter *TicketFilter) ([]entities.Ticket, error) {
-	db := repo.DB
+type FlightTicketFilter struct {
+	SeatID   *uint
+	Username *string
+	Status   *entities.TicketStatus
+}
+
+func (filter *FlightTicketFilter) apply(db *gorm.DB) *gorm.DB {
+	if filter == nil {
+		return db
+	}
+
+	if filter.SeatID != nil {
+		db = db.Where("seat_id = ?", *filter.SeatID)
+	}
+
+	if filter.Username != nil {
+		db = db.Where("username ILIKE ?", "%"+*filter.Username+"%")
+	}
+
+	fmt.Println("STATUS: ", filter.Status)
+	if filter.Status != nil {
+		fmt.Println("STATUS: ", filter.Status)
+		db = db.Where("status = ?", *filter.Status)
+	}
+
+	return db
+}
+
+func (repo *FlightRepo) GetTickets(flightID string, pagination *Pagination, filter *FlightTicketFilter) ([]entities.Ticket, error) {
+	db := repo.DB.Model(&entities.Ticket{})
+
+	db.Scopes(pagination.Apply, filter.apply)
 
 	var tickets []entities.Ticket
 	if err := db.Where("flight_id = ?", flightID).Find(&tickets).Error; err != nil {
