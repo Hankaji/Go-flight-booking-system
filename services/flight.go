@@ -106,6 +106,17 @@ func (s FlightService) GetAllTickets(flightID string, pagination *repositories.P
 	return ticketRes, nil
 }
 
+func (s FlightService) GetTicketByID(flightID, ticketID uint) (*dtos.TicketResponse, error) {
+	ticket, err := s.Repo.GetTicketByID(flightID, ticketID)
+	if err != nil {
+		return nil, err
+	}
+
+	ticketRes := *dtos.TicketE2R(ticket)
+
+	return &ticketRes, nil
+}
+
 func (s FlightService) CreateFlight(req dtos.CreateFlightRequest) error {
 	// Validate time
 	var flights []entities.Flight

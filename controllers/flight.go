@@ -320,3 +320,42 @@ func (con FlightController) GetTickets(ctx *gin.Context) {
 		"data":    tickets,
 	})
 }
+
+func (con FlightController) GetTicketByID(ctx *gin.Context) {
+	service := con.Service
+
+	var flightID uint
+	{
+		idParam := ctx.Param("flightID")
+		id, parseErr := strconv.ParseUint(idParam, 10, 32)
+		if parseErr != nil {
+			ctx.Error(httperrors.NewHTTPErr(http.StatusBadRequest, errors.New("invalid flightID"), parseErr))
+			return
+		}
+
+		flightID = uint(id)
+	}
+
+	var ticketID uint
+	{
+		idParam := ctx.Param("ticketID")
+		id, parseErr := strconv.ParseUint(idParam, 10, 32)
+		if parseErr != nil {
+			ctx.Error(httperrors.NewHTTPErr(http.StatusBadRequest, errors.New("invalid ticketID"), parseErr))
+			return
+		}
+
+		ticketID = uint(id)
+	}
+
+	tickets, err := service.GetTicketByID(flightID, ticketID)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "Tickets fetched successfully",
+		"data":    tickets,
+	})
+}

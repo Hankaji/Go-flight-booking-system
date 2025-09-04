@@ -30,6 +30,7 @@ func RegisterFlightRoutes(r *gin.RouterGroup) {
 
 	// Tickets
 	r.GET("flights/:flightID/tickets", controller.GetTickets)
+	r.GET("flights/:flightID/tickets/:ticketID", controller.GetTicketByID)
 	r.POST("flights/:flightID/tickets", controller.CreateTicket)
 	r.PATCH("flights/:flightID/tickets/:ticketID", controller.UpdateTicket)
 }
