@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package fbs;
+
+option go_package = "./fbspb";
+
+service FlightBookingSystemService {}
+
+message PlaneResponse {
+  uint32 id = 1;
+  string model = 2;
+  uint32 total_seats = 3;
+}
