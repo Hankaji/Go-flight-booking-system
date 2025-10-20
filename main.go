@@ -23,6 +23,11 @@ func main() {
 	dbConn := db.GetDBInstance()
 	db.AutoMigrate(dbConn)
 
+	go runGRPCServer()
+	runRestServer()
+}
+
+func runRestServer() {
 	router := gin.Default()
 
 	routes.SetUpRoutes(router)
