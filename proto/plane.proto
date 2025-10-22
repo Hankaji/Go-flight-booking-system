@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package plane;
+
+option go_package = "flight-booking-server/fbspb/plane";
+
+import "common/common.proto";
+
+service PlaneService {
+  rpc GetAllPlanes(common.EmptyRequest) returns (PlaneResponse) {}
+}
+
+message Plane {
+  uint32 id = 1;
+  string model = 2;
+  uint32 total_seats = 3;
+}
+
+message PlaneResponse {
+  repeated Plane planes = 1;
+}
