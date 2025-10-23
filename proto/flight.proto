@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package flight;
+
+option go_package = "flight-booking-server/fbspb/ticket";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+import "plane.proto";
+
+import "common/common.proto";
+
+service FlightService {
+  rpc ListFlights(common.EmptyRequest) returns (ListFlightsResponse) {};
+  rpc GetFlight(GetFlightRequest) returns (GetFlightResponse) {};
+
+  rpc CreateFlightTicket(common.EmptyRequest) returns (FlightResponse) {};
+}
+
+enum FlightStatus {
+  FLIGHT_STATUS_UNSPECIFIED = 0;
+  FLIGHT_STATUS_SCHEDULED   = 1;
+  FLIGHT_STATUS_DELAYED     = 2;
+  FLIGHT_STATUS_DEPARTED    = 3;
+  FLIGHT_STATUS_ARRIVED     = 4;
+  FLIGHT_STATUS_CANCELLED   = 5;
+}
+
+message LocationSummaryResponse {
+	uint32 id = 1;
+	string name = 2;
+}
+
+message Flight {
+  uint32 id = 1;
+
+  google.protobuf.Timestamp departure_time = 2;
+  google.protobuf.Timestamp arrival_time = 3;
+
+  LocationSummaryResponse departure_location = 4;
+  LocationSummaryResponse arrival_location = 5;
+
+  google.protobuf.Duration estimated_duration = 6;
+
+  float price = 7;
+
+  plane.Plane airplane = 8;
+
+  FlightStatus status = 9;
+}
+
+// ----- List Flights
+
+message ListFlightsRequest {
+  optional string plane_id = 1;
+  optional FlightStatus status = 2;
+  optional google.protobuf.Timestamp time_from = 3;
+  optional google.protobuf.Timestamp time_to = 4;
+  optional string departure_location_id = 5;
+  optional string arrival_location_id = 6;
+  optional string duration = 7;
+  optional string min_price = 8;
+  optional string max_price = 9;
+
+  optional common.Pagination pagination = 10;
+}
+
+message ListFlightsResponse {
+  repeated Flight flights = 1;
+}
+
+// ----- Get Flight
+
+message GetFlightRequest {
+  uint32 id = 1;
+}
+
+message GetFlightResponse {
+  Flight flight = 1;
+}
+
+// ----- Create Flight Ticket
+
+message CreateFlightTicketRequest {
+  uint32 seat_id = 1;
+  string username = 2;
+}
+

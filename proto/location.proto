@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package location;
+
+option go_package = "flight-booking-server/fbspb/location";
+
+message Location {
+  uint32 id = 1;
+  string model = 2;
+  uint32 total_seats = 3;
+}

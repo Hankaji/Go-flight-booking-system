@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package ticket;
+
+option go_package = "flight-booking-server/fbspb/ticket";
+
+import "common/common.proto";
+import "seat.proto";
+
+service TicketService {
+  rpc ListTickets(common.EmptyRequest) returns (TicketResponse) {};
+  rpc GetTicket(ommon.EmptyRequest) returns (TicketResponse) {};
+}
+
+enum TicketStatus {
+  TICKET_STATUS_UNSPECIFIED = 0;
+  TICKET_STATUS_APPROVED    = 1;
+  TICKET_STATUS_CANCELLED   = 2;
+}
+
+message TicketResponse {
+  uint32 id = 1;
+  uint32 seat_id = 2;
+  string username = 3;
+  TicketStatus status = 4;
+
+  seat.Seat seat = 5; // optional
+}
+
+// ----- Get Ticket
+
+message GetTicketRequest {
+  uint32 id = 1;
+}
