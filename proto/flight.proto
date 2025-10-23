@@ -15,7 +15,7 @@ service FlightService {
   rpc ListFlights(common.EmptyRequest) returns (ListFlightsResponse) {};
   rpc GetFlight(GetFlightRequest) returns (GetFlightResponse) {};
 
-  rpc CreateFlightTicket(common.EmptyRequest) returns (FlightResponse) {};
+  // rpc CreateFlightTicket(common.EmptyRequest) returns (FlightResponse) {};
 }
 
 enum FlightStatus {

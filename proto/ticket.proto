@@ -9,7 +9,7 @@ import "seat.proto";
 
 service TicketService {
   rpc ListTickets(common.EmptyRequest) returns (TicketResponse) {};
-  rpc GetTicket(ommon.EmptyRequest) returns (TicketResponse) {};
+  rpc GetTicket(common.EmptyRequest) returns (TicketResponse) {};
 }
 
 enum TicketStatus {
